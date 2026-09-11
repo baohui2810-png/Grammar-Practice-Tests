@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn tập Ngữ Pháp: 3 Thì Cơ Bản</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div id="screen-welcome" class="screen active">
+        <h1>Ôn Tập Ngữ Pháp 🚀</h1>
+        <p style="text-align: center; margin-bottom: 20px;">25 câu trắc nghiệm: Hiện tại đơn, Hiện tại tiếp diễn, Quá khứ đơn.</p>
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Nhập tên của bạn để bắt đầu" required>
+        </div>
+        <button class="btn btn-primary" onclick="startQuiz()">Bắt đầu làm bài (10 phút)</button>
+        <button class="btn btn-outline" onclick="showHistory()">Xem lịch sử điểm</button>
+    </div>
+
+    <div id="screen-quiz" class="screen">
+        <div class="header-info">
+            <div class="progress">Câu: <span id="current-q-num">1</span>/25</div>
+            <div class="timer">⏳ <span id="time-display">10:00</span></div>
+        </div>
+        <div class="question-text" id="question-text">Đang tải câu hỏi...</div>
+        <div class="options" id="options-container">
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-outline" id="btn-prev" onclick="prevQuestion()">⬅ Quay lại</button>
+            <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()">Tiếp theo ➡</button>
+        </div>
+        <button class="btn btn-success" id="btn-submit" onclick="submitQuiz()" style="display: none; margin-top: 15px;">Nộp bài ngay</button>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <h2>Kết quả của bạn 🎉</h2>
+        <h1 style="color: var(--primary); font-size: 3rem;" id="final-score">0/25</h1>
+        <div id="result-list">
+        </div>
+        <button class="btn btn-primary" onclick="goToHome()">Về trang chủ</button>
+    </div>
+
+    <div id="screen-history" class="screen">
+        <h2>Lịch sử làm bài 📜</h2>
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Điểm</th>
+                    <th>Thời gian</th>
+                </tr>
+            </thead>
+            <tbody id="history-body">
+            </tbody>
+        </table>
+        <br>
+        <button class="btn btn-outline" onclick="goToHome()">Quay lại</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
