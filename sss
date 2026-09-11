@@ -1,0 +1,205 @@
+const questionBank = [
+    { q: "He usually _____ to work by bus.", options: ["go", "goes", "is going", "went"], a: 1 },
+    { q: "Water _____ at 100 degrees Celsius.", options: ["boil", "boils", "is boiling", "boiled"], a: 1 },
+    { q: "They _____ play tennis on Sundays.", options: ["don't", "doesn't", "aren't", "didn't"], a: 0 },
+    { q: "_____ she like reading books?", options: ["Do", "Is", "Does", "Did"], a: 2 },
+    { q: "The earth _____ around the sun.", options: ["moves", "move", "is moving", "moved"], a: 0 },
+    { q: "My father _____ a doctor.", options: ["are", "is", "am", "be"], a: 1 },
+    { q: "I _____ coffee every morning.", options: ["drank", "drinks", "am drinking", "drink"], a: 3 },
+    { q: "Cats _____ catching mice.", options: ["likes", "like", "are liking", "liked"], a: 1 },
+    { q: "How often _____ you go to the gym?", options: ["does", "are", "do", "did"], a: 2 },
+    { q: "The train _____ at 8 AM every day.", options: ["leaves", "leave", "is leaving", "left"], a: 0 },
+    
+    { q: "Look! The baby _____.", options: ["sleeps", "sleep", "is sleeping", "slept"], a: 2 },
+    { q: "I can't talk right now, I _____ my homework.", options: ["do", "am doing", "did", "does"], a: 1 },
+    { q: "Listen! Someone _____ at the door.", options: ["knocks", "knock", "is knocking", "knocked"], a: 2 },
+    { q: "They _____ football in the park at the moment.", options: ["are playing", "play", "played", "playing"], a: 0 },
+    { q: "Where is Mom? - She _____ in the kitchen.", options: ["cooks", "cooked", "is cooking", "cook"], a: 2 },
+    { q: "We _____ a movie right now.", options: ["watch", "are watching", "watched", "watches"], a: 1 },
+    { q: "Why _____ you crying?", options: ["do", "did", "are", "is"], a: 2 },
+    { q: "He _____ a blue shirt today.", options: ["wears", "is wearing", "wear", "wore"], a: 1 },
+    { q: "Shh! The students _____ a test.", options: ["take", "takes", "are taking", "took"], a: 2 },
+    { q: "It _____ outside right now, take an umbrella.", options: ["rains", "rained", "is raining", "rain"], a: 2 },
+
+    { q: "I _____ to Paris last summer.", options: ["go", "went", "goes", "am going"], a: 1 },
+    { q: "She _____ me a beautiful gift yesterday.", options: ["gives", "give", "gave", "is giving"], a: 2 },
+    { q: "They _____ pizza for dinner last night.", options: ["eats", "ate", "eat", "are eating"], a: 1 },
+    { q: "_____ you see that movie yesterday?", options: ["Do", "Are", "Did", "Does"], a: 2 },
+    { q: "He _____ at home last weekend.", options: ["stay", "stays", "stayed", "is staying"], a: 2 },
+    { q: "We _____ a lot of photos during the trip.", options: ["took", "takes", "take", "are taking"], a: 0 },
+    { q: "I _____ my keys this morning.", options: ["lose", "lost", "loses", "am losing"], a: 1 },
+    { q: "She _____ understand the lesson yesterday.", options: ["doesn't", "don't", "didn't", "isn't"], a: 2 },
+    { q: "When _____ he arrive?", options: ["does", "did", "do", "is"], a: 1 },
+    { q: "Columbus _____ America in 1492.", options: ["discovers", "is discovering", "discover", "discovered"], a: 3 }
+];
+
+let currentQuiz = [];
+let currentQuestionIndex = 0;
+let userAnswers = [];
+let userName = "";
+let timeLeft = 600; 
+let timerInterval;
+
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+}
+
+function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+}
+
+function startQuiz() {
+    const nameInput = document.getElementById('username').value.trim();
+    if (!nameInput) {
+        alert("Vui lòng nhập tên của bạn!");
+        return;
+    }
+    userName = nameInput;
+    
+    currentQuiz = shuffle([...questionBank]).slice(0, 25);
+    userAnswers = new Array(25).fill(null);
+    currentQuestionIndex = 0;
+    timeLeft = 600;
+
+    showScreen('screen-quiz');
+    renderQuestion();
+    
+    clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        submitQuiz(); 
+        return;
+    }
+    timeLeft--;
+    let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    let s = (timeLeft % 60).toString().padStart(2, '0');
+    document.getElementById('time-display').innerText = `${m}:${s}`;
+}
+
+function renderQuestion() {
+    const qData = currentQuiz[currentQuestionIndex];
+    document.getElementById('current-q-num').innerText = currentQuestionIndex + 1;
+    document.getElementById('question-text').innerText = `Câu ${currentQuestionIndex + 1}: ${qData.q}`;
+    
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = "";
+    
+    qData.options.forEach((opt, index) => {
+        const isChecked = userAnswers[currentQuestionIndex] === index ? "checked" : "";
+        const selectedClass = isChecked ? "selected" : "";
+        
+        const html = `
+            <label class="option-label ${selectedClass}" onclick="selectOption(${index}, this)">
+                <input type="radio" name="option" value="${index}" ${isChecked}>
+                ${opt}
+            </label>
+        `;
+        optionsContainer.insertAdjacentHTML('beforeend', html);
+    });
+
+    document.getElementById('btn-prev').style.visibility = currentQuestionIndex === 0 ? "hidden" : "visible";
+    
+    if (currentQuestionIndex === currentQuiz.length - 1) {
+        document.getElementById('btn-next').style.display = "none";
+        document.getElementById('btn-submit').style.display = "block";
+    } else {
+        document.getElementById('btn-next').style.display = "block";
+        document.getElementById('btn-submit').style.display = "none";
+    }
+}
+
+function selectOption(index, labelElement) {
+    userAnswers[currentQuestionIndex] = index;
+    document.querySelectorAll('.option-label').forEach(lbl => lbl.classList.remove('selected'));
+    labelElement.classList.add('selected');
+    labelElement.querySelector('input').checked = true;
+}
+
+function prevQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+    }
+}
+
+function nextQuestion() {
+    if (currentQuestionIndex < currentQuiz.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+    }
+}
+
+function submitQuiz() {
+    clearInterval(timerInterval);
+    
+    let score = 0;
+    let resultHTML = "";
+
+    currentQuiz.forEach((q, index) => {
+        const userAnswer = userAnswers[index];
+        const isCorrect = userAnswer === q.a;
+        if (isCorrect) score++;
+
+        const statusClass = isCorrect ? "correct" : "wrong";
+        const userText = userAnswer !== null ? q.options[userAnswer] : "Không trả lời";
+        const correctText = q.options[q.a];
+
+        resultHTML += `
+            <div class="result-item ${statusClass}">
+                <p><strong>Câu ${index + 1}:</strong> ${q.q}</p>
+                <p>Bạn chọn: ${userText} ${isCorrect ? '✅' : '❌'}</p>
+                ${!isCorrect ? `<p class="correct-answer-text">Đáp án đúng: ${correctText}</p>` : ''}
+            </div>
+        `;
+    });
+
+    document.getElementById('final-score').innerText = `${score}/25`;
+    document.getElementById('result-list').innerHTML = resultHTML;
+    
+    saveHistory(userName, score);
+    showScreen('screen-result');
+}
+
+function saveHistory(name, score) {
+    let history = JSON.parse(localStorage.getItem('quizHistory')) || [];
+    const date = new Date();
+    const dateString = `${date.getHours()}:${date.getMinutes()} - ${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+    
+    history.push({ name, score, date: dateString });
+    localStorage.setItem('quizHistory', JSON.stringify(history));
+}
+
+function showHistory() {
+    const history = JSON.parse(localStorage.getItem('quizHistory')) || [];
+    const tbody = document.getElementById('history-body');
+    
+    if (history.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3">Chưa có lịch sử làm bài.</td></tr>`;
+    } else {
+        tbody.innerHTML = history.reverse().map(item => `
+            <tr>
+                <td>${item.name}</td>
+                <td><strong>${item.score}/25</strong></td>
+                <td>${item.date}</td>
+            </tr>
+        `).join('');
+    }
+    
+    showScreen('screen-history');
+}
+
+function goToHome() {
+    document.getElementById('username').value = "";
+    showScreen('screen-welcome');
+}
